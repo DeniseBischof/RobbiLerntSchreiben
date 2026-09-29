@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Robbi lernt schreiben</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="robbi.css">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+<script src="tf.min.js"></script>
+
+<div class="app">
+  <header class="top">
+    <ol class="steps" id="steps" aria-label="Stufen"></ol>
+  </header>
+
+  <div class="robot-row">
+    <div class="robot-box">
+      <svg class="robot sleepy" id="robot" viewBox="0 0 120 120" aria-hidden="true">
+        <line x1="60" y1="8" x2="60" y2="24" stroke="var(--robot-dark)" stroke-width="4" stroke-linecap="round"/>
+        <circle class="ant" cx="60" cy="8" r="6"/>
+        <rect class="arm" x="6" y="52" width="14" height="30" rx="7"/>
+        <rect class="arm" x="100" y="52" width="14" height="30" rx="7"/>
+        <rect class="body" x="18" y="24" width="84" height="76" rx="18"/>
+        <rect class="face" x="30" y="38" width="60" height="42" rx="12"/>
+        <g class="eye"><circle cx="47" cy="55" r="7" fill="#fff"/></g>
+        <g class="eye"><circle cx="73" cy="55" r="7" fill="#fff"/></g>
+        <circle class="pupil" cx="48" cy="56" r="3"/>
+        <circle class="pupil" cx="74" cy="56" r="3"/>
+        <path class="mouth" id="mouth" d="M48 70 L72 70"/>
+        <rect class="body" x="40" y="100" width="12" height="12" rx="4"/>
+        <rect class="body" x="68" y="100" width="12" height="12" rx="4"/>
+      </svg>
+      <div class="name-tag" id="name-tag">Robbi</div>
+    </div>
+    <div class="bubble" id="bubble" aria-live="polite">Hallo! Ich wache gerade auf …</div>
+  </div>
+
+  <!-- 0 · Start -->
+  <section class="level" data-level="0">
+    <h2><small>Start</small>Ein Roboter will schreiben lernen</h2>
+    <p class="lead">Dieser Roboter kennt alle Buchstaben, weiß aber nicht, wie man daraus Wörter macht. Das kannst du beibringen. Zuerst braucht der Roboter einen Namen.</p>
+    <div class="field">
+      <label for="name-in">Wie soll der Roboter heißen?</label>
+      <input type="text" id="name-in" value="Robbi" maxlength="14" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <span style="font-weight:700">Was soll der Roboter lernen?</span>
+      <div class="choice" id="corpus-choice">
+        <button type="button" data-corpus="maerchen" aria-pressed="true"><b>Märchen schreiben</b><span>18 kurze Märchen lesen und dann selbst welche schreiben.</span></button>
+        <button type="button" data-corpus="namen" aria-pressed="false"><b>Namen erfinden</b><span>600 Vornamen lesen und dann neue erfinden.</span></button>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn btn-main btn-big" id="start-btn" type="button" disabled>Wache noch auf …</button>
+    </div>
+  </section>
+
+  <!-- 1 · Buchstaben -->
+  <section class="level" data-level="1" hidden>
+    <h2><small>Stufe 1</small>Nur Buchstaben im Kopf</h2>
+    <p class="lead">Das sind alle Zeichen, die <span class="nm-slot"></span> kennt. Mehr nicht. Welcher Buchstabe nach welchem kommt? Keine Ahnung. Lass <span class="nm-slot"></span> mal etwas schreiben.</p>
+    <div class="tiles" id="vocab"></div>
+    <div class="row">
+      <button class="btn btn-main btn-big" id="l1-write" type="button">Schreib mal was!</button>
+    </div>
+    <div class="sheet" id="l1-out"><span class="ph">Hier schreibt der Roboter.</span></div>
+    <details class="more">
+      <summary>Genauer hingeschaut</summary>
+      <div class="inner">
+        <p>Für <span class="nm-slot"></span> ist jedes Zeichen nur eine <b>Nummer</b>: keine Wörter, keine Sätze, nur lange Zahlenreihen. So sieht der Anfang des Buches aus:</p>
+        <div class="tiles" id="tokens"></div>
+        <p>Große KI-Programme wie ChatGPT machen das genauso. Sie zerlegen Text aber nicht in Buchstaben, sondern in Wortstücke, zum Beispiel „Mär“ + „chen“.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 2 · Ratespiel -->
+  <section class="level" data-level="2" hidden>
+    <h2><small>Stufe 2</small>Das Ratespiel: Du gegen <span class="nm-slot"></span></h2>
+    <p class="lead">So lernt ein Roboter: Text lesen und bei jedem Buchstaben raten, welcher als Nächstes kommt. Spiel das mal gegen <span class="nm-slot"></span>. Welcher Buchstabe gehört in die Lücke?</p>
+    <div class="game" id="game-before"></div>
+  </section>
+
+  <!-- 3 · Lesen -->
+  <section class="level" data-level="3" hidden>
+    <h2><small>Stufe 3</small><span class="nm-slot"></span> liest</h2>
+    <p class="lead">Jetzt liest <span class="nm-slot"></span> das Buch und rät bei jedem Buchstaben, was als Nächstes kommt. Ein Fehler bedeutet Überraschung, und die merkt sich <span class="nm-slot"></span> ein kleines bisschen. Nach jeder Leserunde gibt es einen Eintrag ins Tagebuch.</p>
+    <div class="book" id="book">
+      <svg viewBox="0 0 54 54" aria-hidden="true"><path d="M8 8h16a6 6 0 0 1 6 6v34a4 4 0 0 0-4-4H8z" fill="var(--blue)"/><path d="M46 8H30a6 6 0 0 0-6 6v34a4 4 0 0 1 4-4h18z" fill="var(--blue)" opacity=".7"/><path d="M12 16h10M12 22h10M12 28h8M32 16h10M32 22h10M32 28h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <div><b id="book-title"></b><span id="book-sub"></span></div>
+    </div>
+    <div class="row">
+      <button class="btn btn-main btn-big" id="read-btn" type="button">1. Runde: 100 Blicke ins Buch</button>
+      <span class="note" id="read-note"></span>
+    </div>
+    <div class="progress"><div id="read-fill"></div></div>
+    <div class="meter">
+      <div class="lbl"><span>Wie überrascht ist <span class="nm-slot"></span>?</span></div>
+      <div class="track"><div class="knob" id="knob"></div></div>
+      <div class="lbl" style="font-weight:400;color:var(--ink-3)"><span>dauernd überrascht</span><span>fast nie überrascht</span></div>
+    </div>
+    <ol class="ladder" id="ladder"></ol>
+    <div>
+      <h3 style="font-size:19px;margin-bottom:8px">Tagebuch</h3>
+      <div class="diary" id="diary"></div>
+    </div>
+    <details class="more">
+      <summary>Genauer hingeschaut</summary>
+      <div class="inner">
+        <p><span class="nm-slot"></span> hat <b id="m-params">–</b> Zahlen im Kopf. Bei jedem Blick ins Buch liest <span class="nm-slot"></span> 32 Textstücke mit je <b id="m-ctx">64</b> Zeichen, rät überall den nächsten Buchstaben und schiebt dann alle Zahlen ein winziges Stück in die Richtung, die weniger Überraschung bringt. Fachleute nennen das <b>Training</b>, und die Überraschung heißt <b>Fehler</b> oder <b>Loss</b>.</p>
+        <p>Die Kurve zeigt die Überraschung. Blau: beim Lesen des Buches. Rot: bei Text, den <span class="nm-slot"></span> nie gesehen hat. Steigt Rot wieder, wird das Buch nur noch auswendig gelernt, statt Sprache zu verstehen. Du kannst trotzdem weiterlesen lassen und im Tagebuch zuschauen, was dann passiert.</p>
+        <svg id="chart" role="img" aria-label="Überraschung im Verlauf des Lesens"></svg>
+        <ul class="legend">
+          <li><span class="sw train"></span>Im Buch</li>
+          <li><span class="sw val"></span>Unbekannter Text</li>
+          <li><span class="sw ref"></span>Was bloßes Zählen von Buchstaben schafft</li>
+        </ul>
+        <p><b>Gelbe Markierungen</b> im Tagebuch zeigen Stellen, die wörtlich im Buch stehen, also abgeschrieben sind.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 4 · Revanche -->
+  <section class="level" data-level="4" hidden>
+    <h2><small>Stufe 4</small>Revanche!</h2>
+    <p class="lead">Noch einmal das Ratespiel. Aber jetzt hat <span class="nm-slot"></span> gelesen. Mal sehen, wer diesmal gewinnt.</p>
+    <div class="game" id="game-after"></div>
+  </section>
+
+  <!-- 5 · Schreiben -->
+  <section class="level" data-level="5" hidden>
+    <h2><small>Stufe 5</small><span class="nm-slot"></span> schreibt</h2>
+    <p class="lead" id="l5-lead">Jetzt darf <span class="nm-slot"></span> selbst schreiben: einen Buchstaben an den nächsten hängen, immer so, wie es im Buch vorkam.</p>
+    <div class="field" id="l5-prompt-box">
+      <label for="w-prompt">So soll es anfangen</label>
+      <input type="text" id="w-prompt" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="slider">
+      <span>vorsichtig</span>
+      <input type="range" id="w-temp" min="0.4" max="1.3" step="0.05" value="0.8" aria-label="Mut">
+      <span>mutig</span>
+    </div>
+    <div class="row">
+      <button class="btn btn-main btn-big" id="w-go" type="button">Schreib!</button>
+      <span class="note" id="w-note"></span>
+    </div>
+    <div class="sheet" id="w-out"><span class="ph">Hier schreibt der Roboter.</span></div>
+    <details class="more">
+      <summary>Genauer hingeschaut</summary>
+      <div class="inner">
+        <p><span class="nm-slot"></span> kennt für jedes nächste Zeichen nur <b>Wahrscheinlichkeiten</b>: „e“ zu 40 %, „a“ zu 20 % und so weiter. Dann wird gewürfelt. Der Regler „mutig“ heißt bei Fachleuten <b>Temperatur</b>: Vorsichtig heißt fast immer das wahrscheinlichste Zeichen, mutig heißt auch mal ein unwahrscheinliches. Zu vorsichtig wird langweilig und wiederholt sich, zu mutig wird Quatsch.</p>
+        <p><b>Gelb markiert</b> sind Stellen, die genau so im Buch stehen. Das ist abgeschrieben, nicht erfunden. Bei Namen heißt <b>grün</b>: Diesen Namen gab es im Buch nicht, <span class="nm-slot"></span> hat ihn erfunden.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 6 · Riesen -->
+  <section class="level" data-level="6" hidden>
+    <h2><small>Stufe 6</small>Und ChatGPT?</h2>
+    <p class="lead">ChatGPT, Claude und die anderen großen KI-Programme lernen genau wie <span class="nm-slot"></span>: Das nächste Stück Text raten, überrascht sein, ein bisschen umlernen. Der Unterschied ist die Größe.</p>
+    <div class="zoom">
+      <canvas id="zoom" aria-label="Größenvergleich: Jedes Quadrat ist so groß wie die Zahl der Zahlen im Kopf eines Modells"></canvas>
+      <p class="zoom-text" id="zoom-text"></p>
+      <div class="row">
+        <button class="btn btn-main btn-big" id="zoom-btn" type="button">Rauszoomen</button>
+      </div>
+    </div>
+    <div class="giants">
+      <div class="giant">
+        <div><span class="who">Zahlen im Kopf</span><b id="g-ours-params">–</b><span id="g-ours-rice"></span></div>
+        <div><span class="who">Die größten Modelle</span><b class="big">über 1.000.000.000.000</b><span>Eine Billion. Wären das Reiskörner, wären es über 1.000 Lastwagen voll.</span></div>
+      </div>
+      <div class="giant">
+        <div><span class="who">Gelesen</span><b id="g-ours-read">–</b><span id="g-ours-pages"></span></div>
+        <div><span class="who">Die größten Modelle</span><b class="big">über 100 Millionen Bücher</b><span>Ein Mensch bräuchte dafür über 80.000 Jahre.</span></div>
+      </div>
+      <div class="giant">
+        <div><span class="who">Lernzeit</span><b>ein paar Minuten</b><span>auf diesem Computer</span></div>
+        <div><span class="who">Die größten Modelle</span><b class="big">viele Monate</b><span>auf tausenden Spezialcomputern, die so viel Strom brauchen wie eine kleine Stadt</span></div>
+      </div>
+    </div>
+    <p class="principle">Der Trick ist bei allen derselbe: den nächsten Buchstaben raten. Milliardenfach wiederholt.</p>
+    <details class="more">
+      <summary>Genauer hingeschaut</summary>
+      <div class="inner">
+        <p>Die genauen Zahlen: GPT-2 hatte 1,5 Milliarden, GPT-3 175 Milliarden, Llama 3.1 hat 405 Milliarden. Bei den allergrößten Modellen sind die Zahlen geheim, Fachleute schätzen über eine Billion.</p>
+        <p>Und nach dem Lesen ist bei den großen Modellen noch nicht Schluss: Menschen zeigen ihnen tausende Beispiel-Gespräche und bewerten die Antworten. Erst dadurch wird aus dem Textvervollständiger ein Assistent, der Fragen beantwortet.</p>
+      </div>
+    </details>
+    <div class="final">
+      <h3>Du hast <span class="nm-slot"></span> das Schreiben beigebracht!</h3>
+      <p class="lead" style="margin:8px 0 16px">Von Kauderwelsch bis zu echten Wörtern, nur durch Raten und Üben.</p>
+      <button class="btn btn-main btn-big" id="restart" type="button">Nochmal von vorn</button>
+    </div>
+  </section>
+
+  <footer class="nav">
+    <button class="btn" id="back" type="button">Zurück</button>
+    <span class="hint" id="nav-hint"></span>
+    <button class="btn btn-main" id="next" type="button">Weiter</button>
+  </footer>
+  <p class="status" id="status"></p>
+</div>
+<canvas id="confetti" hidden></canvas>
+
+<script src="robbi-texte.js"></script>
+
+<script src="robbi.js"></script>
+
+</body>
+</html>
